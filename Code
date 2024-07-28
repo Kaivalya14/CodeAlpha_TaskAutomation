@@ -1,0 +1,42 @@
+pip install transformers
+pip install torch
+pip install nltk
+
+from transformers import pipeline
+import nltk
+from nltk.tokenize import sent_tokenize
+import os
+
+# Ensure nltk components are downloaded
+nltk.download('punkt')
+
+def read_document(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        text = file.read()
+    return text
+
+def preprocess_text(text):
+    # Tokenize the text into sentences
+    sentences = sent_tokenize(text)
+    return " ".join(sentences)
+
+def summarize_text(text):
+    summarizer = pipeline("summarization")
+    summary = summarizer(text, max_length=150, min_length=30, do_sample=False)
+    return summary[0]['summary_text']
+
+def save_summary(summary, output_path):
+    with open(output_path, 'w', encoding='utf-8') as file:
+        file.write(summary)
+
+def summarize_document(file_path, output_path):
+    text = read_document(file_path)
+    preprocessed_text = preprocess_text(text)
+    summary = summarize_text(preprocessed_text)
+    save_summary(summary, output_path)
+    print(f"Summary saved to {output_path}")
+
+# Example usage
+input_file = "example_document.txt"
+output_file = "summary.txt"
+summarize_document(input_file, output_file)
